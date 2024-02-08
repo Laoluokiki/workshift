@@ -91,7 +91,7 @@ def update_roles(role_id :str, role : UpdateRole, db: Session = Depends(get_db))
 def get_all_roles(db: Session = Depends(get_db)):
     return db.query(models.Roles).all()
 
-
+ 
 
 
 
