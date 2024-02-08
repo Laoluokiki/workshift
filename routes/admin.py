@@ -7,7 +7,7 @@ import models
 from fastapi import FastAPI, Path, Depends 
 from helper.helper import get_db
 from schema import Admin, UpdateAdmin,Department,UpdateDepartment
-import utilis,schema,oauth2
+import utils,schema,oauth2
 from fastapi.security import OAuth2PasswordRequestForm
 
 
@@ -16,15 +16,15 @@ app = APIRouter(
 )
 
 
-@app.post("/login", response_model=schema.Token)
+@app.post("/admin-login", response_model=schema.Token, tags=["AuthRoutes"])
 async def login(admin_user_credentials: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     admin_model = db.query(models.Admin).filter(
-        models.Admin.email == admin.username).first()
+        models.Admin.username == admin_user_credentials.username).first()
     if not admin_model:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"user not found")
 
-    if not utils.verify(admin.password, admin_model.password):
+    if not utils.verify(admin_user_credentials.password, admin_model.password):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST, detail=f"Invalid password")
 
@@ -33,8 +33,8 @@ async def login(admin_user_credentials: OAuth2PasswordRequestForm = Depends(), d
     # return token
     return {"access_token": access_token, "token_type": "bearer"}
 
-@app.post("/admin-user")
-def create_admin(admin: Admin,  db: Session = Depends(get_db)):
+@app.post("/admin-user", tags=["AdminRoutes"])
+def create_admin(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)],admin: Admin,  db: Session = Depends(get_db)):
     admin_model = db.query(models.Admin).filter(
         models.Admin.username == admin.username ,
         models.Admin.email == admin.email
@@ -43,6 +43,7 @@ def create_admin(admin: Admin,  db: Session = Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
         detail=f"message: {admin.username} or with email:{admin.email} already exists")
 
+    admin.password = utils.hash(admin.password)
     admin_model = models.Admin(**admin.model_dump())
 
     db.add(admin_model)
@@ -50,7 +51,7 @@ def create_admin(admin: Admin,  db: Session = Depends(get_db)):
 
     return admin
 
-@app.put("/update-admin/{admin_username}")
+@app.put("/update-admin/{admin_username}", tags=["AdminRoutes"])
 def update_admin(admin_username :str, admin : UpdateAdmin, db: Session = Depends(get_db)):    
     admin_model =  db.query(models.Admin).filter(models.Admin.username == admin_username).first()  
     
@@ -65,7 +66,7 @@ def update_admin(admin_username :str, admin : UpdateAdmin, db: Session = Depends
          
     return admin       
 
-@app.get("/admin")
-def get_all_admin(token: Annotated[str, Depends(oauth2.oauth2_scheme)], db: Session = Depends(get_db)):
+@app.get("/admin", tags=["AdminRoutes"])
+def get_all_admin(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)], db: Session = Depends(get_db)):
     return db.query(models.Admin).all()
 

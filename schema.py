@@ -4,20 +4,26 @@ from datetime import datetime, date, timedelta, timezone
 
 
 class User(BaseModel): 
-    name : str = Field(min_lenghts=3)
+    first_name : str = Field(min_lenghts=3)
+    last_name : str = Field(min_lenghts=3)
     phone_number : str = Field(min_lenghts=10)
+    gender : str 
     email: EmailStr
-    date_birth : str = Field(min_lenghts=6) 
+    date_birth :  date
     home_address : str = Field(min_lenghts=6)
     marital_status : Optional[str] = None
+    password: str = Field(min_lenghts=3)
 
 class UpdateUser(BaseModel):
-    name : str = Field(min_lenghts=3)
+    first_name : str = Field(min_lenghts=3)
+    last_name : str = Field(min_lenghts=3)
     phone_number : str = Field(min_lenghts=10)
+    gender : str 
     email: EmailStr
     date_birth : str = Field(min_lenghts=6) 
     home_address : str = Field(min_lenghts=6)
     marital_status : Optional[str] = None
+    password: str = Field(min_lenghts=3)
     
 
 class Admin(BaseModel):
@@ -72,13 +78,17 @@ class Usershift(BaseModel):
     date_created : date 
 
 class UpdateUsershift(BaseModel):
-    user_id : int
+    # user_id : int
     shift_id : int
     date_created : date
 
 class Token(BaseModel):
     access_token: str
     token_type: str    
-        
+
+class UserRole(BaseModel):
+    role_id : int
+    date_created : date
+
 
 

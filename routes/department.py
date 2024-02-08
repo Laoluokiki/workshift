@@ -14,7 +14,7 @@ app = APIRouter(
 )
 
 
-@app.post("/create-dept")
+@app.post("/create-dept", tags=["AdminRoutes"])
 def create_dept(department: Department,  db: Session = Depends(get_db)):
     department_model = db.query(models.Departments).filter(
         models.Departments.name_of_department == department.name_of_department).first()
@@ -29,7 +29,7 @@ def create_dept(department: Department,  db: Session = Depends(get_db)):
 
     return department
 
-@app.put("/update-dept")
+@app.put("/update-dept", tags=["AdminRoutes"])
 def update_admin(update_dept :str, department : UpdateDepartment, db: Session = Depends(get_db)):    
     department_model =  db.query(models.Departments).filter(models.Departments.name_of_department == department.name_of_department).first()  
     
@@ -42,12 +42,12 @@ def update_admin(update_dept :str, department : UpdateDepartment, db: Session = 
     return department        
     
 
-@app.get("/departments")
+@app.get("/departments", tags=["AdminRoutes"])
 def get_all_departments(db: Session = Depends(get_db)):
     return db.query(models.Departments).all()
 
 
-@app.post("/create-roles")
+@app.post("/create-roles", tags=["AdminRoutes"])
 def create_role(role: Role,  db: Session = Depends(get_db)):
     role_model = db.query(models.Roles).filter(
         models.Roles.department_id  == role.department_id ).first()
@@ -63,7 +63,7 @@ def create_role(role: Role,  db: Session = Depends(get_db)):
 
     return role
 
-@app.put("/update-roles")
+@app.put("/update-roles", tags=["AdminRoutes"])
 def update_roles(role_id :str, role : UpdateRole, db: Session = Depends(get_db)):    
     role_model =  db.query(models.Roles).filter(models.Roles.id == role_id).first()  
     
@@ -87,7 +87,7 @@ def update_roles(role_id :str, role : UpdateRole, db: Session = Depends(get_db))
          
     return role          
 
-@app.get("/roles")
+@app.get("/roles", tags=["AdminRoutes"])
 def get_all_roles(db: Session = Depends(get_db)):
     return db.query(models.Roles).all()
 

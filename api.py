@@ -3,7 +3,7 @@ import models
 from database import engine,SessionLocal
 from sqlalchemy.orm import Session
 from fastapi.responses import HTMLResponse
-from routes import admin, user, department, shift
+from routes import admin, user, department, shift, userrole
 
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
@@ -52,3 +52,4 @@ app.include_router(admin.app)
 app.include_router(user.app)
 app.include_router(department.app)
 app.include_router(shift.app)
+app.include_router(userrole.app)
