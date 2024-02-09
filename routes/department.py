@@ -49,13 +49,22 @@ def get_all_departments(db: Session = Depends(get_db)):
 
 @app.post("/create-roles", tags=["AdminRoutes"])
 def create_role(role: Role,  db: Session = Depends(get_db)):
-    role_model = db.query(models.Roles).filter(
-        models.Roles.department_id  == role.department_id ).first()
+    #check if department exist
+    department_model = db.query(models.Departments).filter(
+        models.Departments.id  == role.department_id ).first()
 
+    if department_model is None:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+        detail=f"mesage: Department {role.department_id} does not exist")
+
+    # check if role has been created 
+    role_model = db.query(models.Roles).filter(
+        models.Roles.department_id  == role.department_id, models.Roles.name_of_role==role.name_of_role).first()
+    
     if role_model is not None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-        detail=f"mesage: {department.name_of_department} is  already created")
-
+        detail=f"mesage: Role  {role.name_of_role} already exist")
+    
     role_model = models.Roles(**role.model_dump())
 
     db.add(role_model)

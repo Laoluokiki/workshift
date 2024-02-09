@@ -78,7 +78,7 @@ def update_user(user_id :str, user: UpdateUser, db: Session = Depends(get_db)):
     user_model =  db.query(models.User).filter(models.User.id == user_id).first()  
     
     if user_model is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"message: {user_name} does not exists")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"message: {user_id} does not exists")
     
     if user_model != None:
         user_model.name = user.name
