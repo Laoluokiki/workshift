@@ -125,7 +125,7 @@ def create_usershift(token: Annotated[str, Depends(oauth2.user_oauth2_schema)],u
 
 
 @app.put("/update-user-shift/", tags=["UserRoutes"])
-def update_usershift(token: Annotated[str, Depends(oauth2.user_oauth2_schema)], user_id :str, usershift: UpdateUsershift, db: Session = Depends(get_db)): 
+def update_usershift(token: Annotated[str, Depends(oauth2.user_oauth2_schema)], usershift: UpdateUsershift, db: Session = Depends(get_db)): 
 
     payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
     email: str = payload.get("email")
