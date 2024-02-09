@@ -15,17 +15,10 @@ class User(BaseModel):
     password: str = Field(min_lenghts=3)
 
 class UpdateUser(BaseModel):
-    first_name : str = Field(min_lenghts=3)
-    last_name : str = Field(min_lenghts=3)
     phone_number : str = Field(min_lenghts=10)
-    gender : str 
-    email: EmailStr
-    date_birth : str = Field(min_lenghts=6) 
+    date_birth : date
     home_address : str = Field(min_lenghts=6)
-    marital_status : Optional[str] = None
-    password: str = Field(min_lenghts=3)
     
-
 class Admin(BaseModel):
     username : str
     email : EmailStr

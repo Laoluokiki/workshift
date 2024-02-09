@@ -8,6 +8,8 @@ from schema import User, UpdateUser
 import utils,schema,oauth2
 from fastapi.security import OAuth2PasswordRequestForm
 from config import settings
+from typing import Annotated
+from jose import JWTError, jwt
 
 
 
@@ -73,21 +75,27 @@ def create_user(background_tasks: BackgroundTasks , user: User,  db: Session = D
 
     return user
 
-@app.put("/update-user/", tags=["AdminRoutes"])
-def update_user(user_id :str, user: UpdateUser, db: Session = Depends(get_db)):    
+@app.put("/update-user/", tags=["UserRoutes"])
+def update_user(token: Annotated[str, Depends(oauth2.user_oauth2_schema)],user: UpdateUser, db: Session = Depends(get_db)):    
+    
+    payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    email: str = payload.get("email")
+    user_id: str = payload.get("id")
+
     user_model =  db.query(models.User).filter(models.User.id == user_id).first()  
     
     if user_model is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"message: {user_id} does not exists")
     
-    if user_model != None:
-        user_model.name = user.name
-
-    if user.email != None:       
-       user_model.email =  user.email
-
+    
     if user.phone_number != None:
        user_model.phone_number = user.phone_number
+
+    if user.date_birth != None:
+       user_model.date_birth = user.date_birth
+
+    if user.home_address != None:
+       user_model.home_address  = user.home_address 
 
     db.add(user_model)
     db.commit()
@@ -108,7 +116,7 @@ def verify_user_email(background_tasks: BackgroundTasks,email_verification_code:
 
 
 @app.get("/user",tags=["AdminRoutes"])
-def get_all_users(db: Session = Depends(get_db)):
+def get_all_users(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)], db: Session = Depends(get_db)):
     return db.query(models.User).all()
 
 

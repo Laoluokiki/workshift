@@ -19,7 +19,7 @@ app = APIRouter(
 
 
 @app.post("/create-shift", tags=["AdminRoutes"]) #by admin
-def create_shift(shift: Shift,  db: Session = Depends(get_db)):
+def create_shift(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)],shift: Shift,  db: Session = Depends(get_db)):
     shift_model = db.query(models.Shift).filter(
         models.Shift.role_id  == shift.role_id).first()
     if shift_model is not None:
@@ -34,14 +34,17 @@ def create_shift(shift: Shift,  db: Session = Depends(get_db)):
     return shift
 
 @app.put("/update-shift/", tags=["AdminRoutes"]) #by admin
-def update_shift(shift_id :str, shift: UpdateShift, db: Session = Depends(get_db)):    
-    shift_model =  db.query(models.User).filter(models.Shift.id == shift_id).first()  
+def update_shift(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)], shift_id :str, shift: UpdateShift, db: Session = Depends(get_db)):    
+    shift_model =  db.query(models.Shift).filter(models.Shift.id == shift_id).first()  
     
     if shift_model is None:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"message: {shift_id} does not exists")
     
     if shift.no_of_resources != None:
         shift_model.no_of_resources = shift.no_of_resources
+
+    if shift.role_id != None:
+        shift_model.role_id = shift.role_id
 
     if shift.start_time != None:       
        shift_model.start_time =  shift.start_time
@@ -122,7 +125,11 @@ def create_usershift(token: Annotated[str, Depends(oauth2.user_oauth2_schema)],u
 
 
 @app.put("/update-user-shift/", tags=["UserRoutes"])
-def update_usershift(user_id :str, usershift: UpdateUsershift, db: Session = Depends(get_db)):    
+def update_usershift(token: Annotated[str, Depends(oauth2.user_oauth2_schema)], usershift: UpdateUsershift, db: Session = Depends(get_db)): 
+
+    payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    email: str = payload.get("email")
+    user_id: str = payload.get("id")   
     usershift_model =  db.query(models.UserShift).filter(models.User.id == user_id).first()  
     
     if usershift_model is None:
@@ -131,8 +138,8 @@ def update_usershift(user_id :str, usershift: UpdateUsershift, db: Session = Dep
     if usershift.shift_id != None:
         usershift_model.shift_id = usershift.shift_id
 
-    if usershift.date_created != None:
-       usershift_model.date_created = usershift.date_created
+    
+    
 
     db.add(usershift_model)
     db.commit()
@@ -140,12 +147,15 @@ def update_usershift(user_id :str, usershift: UpdateUsershift, db: Session = Dep
     return usershift   
 
 @app.get("/Users-shift", tags=["AdminRoutes"])
-def get_all_usershifts(db: Session = Depends(get_db)):
+def get_all_usershifts(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)], db: Session = Depends(get_db)):
     return db.query(models.Usershift).all()
 
 
-@app.get("/get-usershift/{user_id}", tags=["UserRoutes"])
-def get_usershift(user_id: int = Path (description= "The ID of Users", gt=0, le=100000),db: Session = Depends(get_db)):
+@app.get("/get-usershift", tags=["UserRoutes"])
+def get_usershift(token: Annotated[str, Depends(oauth2.user_oauth2_schema)],db: Session = Depends(get_db)):
+    payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    email: str = payload.get("email")
+    user_id: str = payload.get("id")
     user_shift_model =  db.query(models.Usershift).filter(models.Usershift.user_id == user_id).all() 
     
     if user_shift_model is None:
@@ -154,7 +164,7 @@ def get_usershift(user_id: int = Path (description= "The ID of Users", gt=0, le=
     return user_shift_model 
 
 @app.get("/get-shift/{shift_id}", tags=["AdminRoutes"])
-def get_shift(shift_id: int = Path (description= "The ID of shift", gt=0, le=100000),db: Session = Depends(get_db)):
+def get_shift(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)], shift_id: int = Path (description= "The ID of shift", gt=0, le=100000),db: Session = Depends(get_db)):
     user_shift_model =  db.query(models.Usershift).filter(models.Usershift.shift_id == shift_id).all() 
     
     if user_shift_model is None:

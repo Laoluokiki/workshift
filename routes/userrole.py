@@ -50,11 +50,15 @@ def create_userrole(token: Annotated[str, Depends(oauth2.user_oauth2_schema)],us
     return userrole
 
 @app.get("/userroles", tags=["AdminRoutes"])
-def get_all_usersroles(db: Session = Depends(get_db)):
+def get_all_usersroles(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)], db: Session = Depends(get_db)):
     return db.query(models.UserRole).all()
 
-@app.get("/get-userrole/{user_id}", tags=["UserRoutes"])
-def get_userrole(user_id: int = Path (description= "The ID of Users", gt=0, le=100000),db: Session = Depends(get_db)):
+@app.get("/get-userrole", tags=["UserRoutes"])
+def get_userrole(token: Annotated[str, Depends(oauth2.user_oauth2_schema)],db: Session = Depends(get_db)):
+    payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    email: str = payload.get("email")
+    user_id: str = payload.get("id")
+
     userrole_model =  db.query(models.UserRole).filter(models.UserRole.user_id == user_id).all() 
     
     if userrole_model is None:
