@@ -66,20 +66,14 @@ def get_all_shifts(db: Session = Depends(get_db)):
 
 
 @app.post("/create-usershift", tags=["UserRoutes"]) #user
-def create_usershift(token: Annotated[str, Depends(oauth2.user_oauth2_schema)],usershift: UpdateUsershift,  db: Session = Depends(get_db)):
+def create_usershift(token: Annotated[str, Depends(oauth2.user_oauth2_schema)],usershift: UpdateUsershift, 
+ db: Session = Depends(get_db)):
     
     payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
     email: str = payload.get("email")
     user_id: str = payload.get("id")
 
     
-    # #check if user with id exist
-    # usershift_model = db.query(models.Usershift).filter(
-    #     models.Usershift.user_id  == user_id).first()
-    # if usershift_model is not None:
-    #     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
-    #     detail=f"message: User {user_id} has  already  this shift")
-
     # check if shift has been created 
     shift_model = db.query(models.Shift).filter(
         models.Shift.id == usershift.shift_id).first()   
@@ -164,10 +158,47 @@ def get_usershift(token: Annotated[str, Depends(oauth2.user_oauth2_schema)],db: 
     return user_shift_model 
 
 @app.get("/get-shift/{shift_id}", tags=["AdminRoutes"])
-def get_shift(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)], shift_id: int = Path (description= "The ID of shift", gt=0, le=100000),db: Session = Depends(get_db)):
+def get_shift(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)], shift_id: int = Path (description= "Shift ID", gt=0, le=100000),db: Session = Depends(get_db)):
     user_shift_model =  db.query(models.Usershift).filter(models.Usershift.shift_id == shift_id).all() 
     
     if user_shift_model is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"message: Shift id  {shift_id} does not  exists")
     
     return user_shift_model 
+
+
+@app.get("/clock-in/{shift_id}", tags=["UserRoutes"],)
+def get_clock_in(token: Annotated[str, Depends(oauth2.user_oauth2_schema)], shift_id: int = Path (description= "Shift ID", gt=0, le=100000),db: Session = Depends(get_db)):
+    payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    email: str = payload.get("email")
+    user_id: str = payload.get("id")
+    clock_model =  db.query(models.Usershift).filter(models.Usershift.shift_id == shift_id,
+    models.Usershift.user_id == user_id).first() 
+    
+    if clock_model  is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"message: User id  {user_id} does not  exists")
+    
+    #set clock in
+    clock_model.clock_in = datetime.now() #timne now
+    
+    db.add(clock_model)
+    db.commit()
+    return clock_model 
+
+@app.get("/clock-out/{shift_id}", tags=["UserRoutes"],)
+def get_clock_out(token: Annotated[str, Depends(oauth2.user_oauth2_schema)], shift_id: int = Path (description= "Shift ID", gt=0, le=100000),db: Session = Depends(get_db)):
+    payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm])
+    email: str = payload.get("email")
+    user_id: str = payload.get("id")
+    clock_model =  db.query(models.Usershift).filter(models.Usershift.shift_id == shift_id,
+    models.Usershift.user_id == user_id).first() 
+    
+    if clock_model  is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"message: User id  {user_id} does not  exists")
+    
+    #set clock out
+    clock_model.clock_out = datetime.now() #timne now
+    db.add(clock_model)
+    db.commit()
+
+    return clock_model     

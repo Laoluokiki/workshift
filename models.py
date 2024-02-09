@@ -63,6 +63,8 @@ class Usershift(Base):
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer)
     shift_id = Column(Integer)
+    clock_in = Column(TIMESTAMP(timezone=True), nullable=True)
+    clock_out = Column(TIMESTAMP(timezone=True), nullable=True)
     date_created = Column(TIMESTAMP(timezone=True), nullable=False, server_default=func.now())
     
 class UserRole(Base):
