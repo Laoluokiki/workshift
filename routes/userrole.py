@@ -32,7 +32,7 @@ def create_userrole(token: Annotated[str, Depends(oauth2.user_oauth2_schema)],us
     role_model =  db.query(models.Roles).filter(models.Roles.id == userrole.role_id).first()  
     
     if role_model is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Role: {role_id} does not exists")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Role: {userrole.role_id} does not exists")
 
     userrole_model = db.query(models.UserRole).filter(
         models.UserRole.user_id  == user_id,

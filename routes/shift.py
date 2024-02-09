@@ -38,7 +38,7 @@ def update_shift(shift_id :str, shift: UpdateShift, db: Session = Depends(get_db
     shift_model =  db.query(models.User).filter(models.Shift.id == shift_id).first()  
     
     if shift_model is None:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"message: {user_name} does not exists")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"message: {shift_id} does not exists")
     
     if shift.no_of_resources != None:
         shift_model.no_of_resources = shift.no_of_resources
