@@ -8,6 +8,7 @@ from passlib.context import CryptContext
 
 from jose import JWTError, jwt
 from config import settings
+import schema
 
 from datetime import datetime, timedelta, timezone
 
@@ -46,7 +47,7 @@ def verify_access_token(token: str, credentials_exception):
 
         if email is None:
             raise credentials_exception
-        token_data = schemas.TokenData(email = email,is_authenticated=True)
+        token_data = schema.TokenData(email = email,is_authenticated=True)
     
     except JWTError:
         raise credentials_exception

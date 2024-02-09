@@ -90,5 +90,9 @@ class UserRole(BaseModel):
     role_id : int
     date_created : date
 
+class TokenData(BaseModel):
+    email: str 
+    is_authenticated: bool 
+
 
 
