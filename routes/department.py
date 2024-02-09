@@ -2,10 +2,12 @@
 from pydantic import BaseModel, Field, EmailStr
 from fastapi import APIRouter,status, HTTPException
 from sqlalchemy.orm import Session
-import models
+import models,oauth2
 from fastapi import FastAPI, Path, Depends 
 from helper.helper import get_db
 from schema import Department,UpdateDepartment,Role,UpdateRole
+from typing import Annotated
+
 
 
 
@@ -15,7 +17,7 @@ app = APIRouter(
 
 
 @app.post("/create-dept", tags=["AdminRoutes"])
-def create_dept(department: Department,  db: Session = Depends(get_db)):
+def create_dept(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)], department: Department,  db: Session = Depends(get_db)):
     department_model = db.query(models.Departments).filter(
         models.Departments.name_of_department == department.name_of_department).first()
     if department_model is not None:
@@ -30,7 +32,7 @@ def create_dept(department: Department,  db: Session = Depends(get_db)):
     return department
 
 @app.put("/update-dept", tags=["AdminRoutes"])
-def update_admin(update_dept :str, department : UpdateDepartment, db: Session = Depends(get_db)):    
+def update_dept(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)],update_dept :str, department : UpdateDepartment, db: Session = Depends(get_db)):    
     department_model =  db.query(models.Departments).filter(models.Departments.name_of_department == department.name_of_department).first()  
     
     if department_model is  None:
@@ -48,7 +50,7 @@ def get_all_departments(db: Session = Depends(get_db)):
 
 
 @app.post("/create-roles", tags=["AdminRoutes"])
-def create_role(role: Role,  db: Session = Depends(get_db)):
+def create_role(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)],role: Role,  db: Session = Depends(get_db)):
     #check if department exist
     department_model = db.query(models.Departments).filter(
         models.Departments.id  == role.department_id ).first()
@@ -73,7 +75,7 @@ def create_role(role: Role,  db: Session = Depends(get_db)):
     return role
 
 @app.put("/update-roles", tags=["AdminRoutes"])
-def update_roles(role_id :str, role : UpdateRole, db: Session = Depends(get_db)):    
+def update_roles(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)], role_id :str, role : UpdateRole, db: Session = Depends(get_db)):    
     role_model =  db.query(models.Roles).filter(models.Roles.id == role_id).first()  
     
     if role_model is None:
@@ -84,6 +86,9 @@ def update_roles(role_id :str, role : UpdateRole, db: Session = Depends(get_db))
 
     if role.describe_role != None:       
        role_model.describe_role =  role.describe_role
+    
+    if role.department_id != None:       
+       role_model.department_id =  role.department_id
 
     if role.minimum_hour != None:
        role_model.minimum_hour = role.minimum_hour
