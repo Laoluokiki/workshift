@@ -169,8 +169,7 @@ def get_shift(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)], shift_
 
 @app.get("/clock-in/{shift_id}", tags=["UserRoutes"],)
 def get_clock_in(token: Annotated[str, Depends(oauth2.user_oauth2_schema)], shift_id: int = Path (description= "Shift ID", gt=0, le=100000),db: Session = Depends(get_db)):
-    email: str = ""
-    user_id: str = ""
+    
     try:
         #decode the token
         payload = jwt.decode(token, settings.secret_key, algorithms=[settings.algorithm]) 
@@ -188,8 +187,8 @@ def get_clock_in(token: Annotated[str, Depends(oauth2.user_oauth2_schema)], shif
     
     #set clock in
     #get the shift by id
-    shift_model =  db.query(models.Shift).filter(models.Shift.id == shift_id).first() 
-    
+    shift_model: models.Shift =  db.query(models.Shift).filter(models.Shift.id == shift_id).first() 
+    print(shift_model.date_created)
     #compute time and date
     start_time_str = str(shift_model.date_created) +" "+ str(time(hour=shift_model.start_time, minute=0,second=0))
     start_time_obj = datetime.strptime(start_time_str, "%Y-%m-%d %H:%M:%S")
@@ -220,7 +219,7 @@ def get_clock_out(token: Annotated[str, Depends(oauth2.user_oauth2_schema)], shi
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"message: User id  {user_id} does not  exists")
     
     #set clock out
-    shift_model =  db.query(models.Shift).filter(models.Shift.id == shift_id).first() 
+    shift_model: models.Shift =  db.query(models.Shift).filter(models.Shift.id == shift_id).first() 
     start_time_str = str(shift_model.date_created) +" "+ str(time(hour=shift_model.start_time, minute=0,second=0))
     start_time_obj = datetime.strptime(start_time_str, "%Y-%m-%d %H:%M:%S")
     end_time_str = str(shift_model.date_created) +" "+ str(time(hour=shift_model.end_time, minute=0,second=0))
