@@ -4,9 +4,22 @@ from database import engine,SessionLocal
 from sqlalchemy.orm import Session
 from fastapi.responses import HTMLResponse
 from routes import admin, user, department, shift, userrole
+from fastapi.middleware.cors import CORSMiddleware
+
 
 app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
+
+
+origins = ["http://localhost:4200"]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins= origins,
+    allow_credentials=True,
+    allow_methods=["POST", "GET", "OPTIONS"],
+    allow_headers=["*"],
+)
 
 @app.get("/", response_class=HTMLResponse)
 async def read_root():

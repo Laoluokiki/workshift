@@ -109,6 +109,17 @@ def create_usershift(token: Annotated[str, Depends(oauth2.user_oauth2_schema)],u
          raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
         detail=f"message: shift: {shift_model.id} has been fully booked")
 
+    
+    # user_shift_details = db.query(models.Usershift, models.Shift).filter(
+    #     models.Usershift.shift_id==models.Shift.id, models.Usershift.user_id==user_id ).all()
+
+    # for u,s in user_shift_details: 
+    #     if s.date_created == shift_model.date_created:
+    #         if (shift_model.start_time >= s.start_time and shift_model.start_time <= s.end_time)or
+    #         (shift_model.end_time  >= s.start_time and shift_model.end_time<= s.end_time):
+    #             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+    #             detail=f"you cannot be on this shift,because one of your shifts time crossed this new one ")
+
     usershift_model = models.Usershift(**usershift.model_dump())
     usershift_model.user_id =user_id
 
