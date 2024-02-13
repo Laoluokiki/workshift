@@ -1,4 +1,4 @@
-name: Api Build CI/CD
+name: Workshift Api Build CI/CD
 
 on:
   push:
