@@ -11,7 +11,7 @@ app = FastAPI()
 models.Base.metadata.create_all(bind=engine)
 
 
-origins = ["http://localhost:4200"]
+origins = ["https://workshift-frontend-1ja6f0rtq-olaoluwas-projects-a9f0ed67.vercel.app"]
 
 app.add_middleware(
     CORSMiddleware,
