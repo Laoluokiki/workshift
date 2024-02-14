@@ -12,7 +12,7 @@ from typing import Annotated
 
 
 app = APIRouter(
-    prefix="/api/v1"
+    prefix="/api/v1" 
 )
 
 
