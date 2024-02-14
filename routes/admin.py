@@ -12,7 +12,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 
 app = APIRouter(
-    prefix="/api/v1"
+    prefix="/api/v1" 
 )
 
 
