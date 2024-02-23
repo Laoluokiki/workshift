@@ -70,3 +70,5 @@ def update_admin(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)], adm
 def get_all_admin(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)], db: Session = Depends(get_db)):
     return db.query(models.Admin).all()
 
+
+#@app.delete 
