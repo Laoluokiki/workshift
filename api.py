@@ -15,6 +15,7 @@ origins = [
     "https://workshift-frontend-1ja6f0rtq-olaoluwas-projects-a9f0ed67.vercel.app",
     "http://localhost:4200", 
     "https://workshift-frontend.vercel.app"
+    "https://happy-smoke-04b222310.3.azurestaticapps.net"
     ]
 
 app.add_middleware(

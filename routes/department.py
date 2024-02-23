@@ -106,10 +106,18 @@ def get_all_roles(db: Session = Depends(get_db)):
     return db.query(models.Roles).all()
 
  
+@app.delete("/delete/{department_name}")
+def delete_department(department : Department,db:Session = Depends(get_db)):
+    department_model = db.query(models.Departments).filter(
+     models.Departments.name_of_department == department.name_of_department).first()
+    if  department_model is  None:
+       raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+       detail=f"Department: {department.name_of_department} does not exist")
 
+    db.delete(department_model)
+    db.commit()
 
-
-
-
+    return f" Department : {department.name_of_department} has been successfully deleted"
+  
 
 
