@@ -34,7 +34,8 @@ async def login(admin_user_credentials: OAuth2PasswordRequestForm = Depends(), d
     return {"access_token": access_token, "token_type": "bearer"}
 
 @app.post("/admin-user", tags=["AdminRoutes"])
-def create_admin(token: Annotated[str, Depends(oauth2.admin_oauth2_schema)], admin: Admin,  db: Session = Depends(get_db)):
+# token: Annotated[str, Depends(oauth2.admin_oauth2_schema)],
+def create_admin( admin: Admin,  db: Session = Depends(get_db)):
     admin_model = db.query(models.Admin).filter(
         models.Admin.username == admin.username ,
         models.Admin.email == admin.email

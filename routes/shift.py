@@ -143,8 +143,6 @@ def update_usershift(token: Annotated[str, Depends(oauth2.user_oauth2_schema)], 
     if usershift.shift_id != None:
         usershift_model.shift_id = usershift.shift_id
 
-    
-    
 
     db.add(usershift_model)
     db.commit()
